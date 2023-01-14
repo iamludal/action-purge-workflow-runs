@@ -11,6 +11,7 @@ const main = async (): Promise<void> => {
     const totalCount = await utils.getTotalCount()
     const remainderPage = totalCount % perPage !== 0 ? 1 : 0
     const lastPage = Math.floor(totalCount / perPage) + remainderPage
+    let deleted = 0
 
     for (let page = lastPage; page >= 0; page--) {
       const runs = await utils.getWorkflowRuns(page)
@@ -26,10 +27,13 @@ const main = async (): Promise<void> => {
 
       try {
         await utils.deleteWorkflowRuns(runIds)
+        deleted += runIds.length
       } catch (e: any) {
         core.error(`Failed to delete runs: ${e.message}`)
       }
     }
+
+    core.info(`Deleted ${deleted} runs`)
   } catch (error: any) {
     core.setFailed(`Action failed with error: ${error}`)
   }
