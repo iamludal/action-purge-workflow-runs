@@ -15,15 +15,14 @@ const main = async (): Promise<void> => {
 
     for (let page = lastPage; page >= 0; page--) {
       const runs = await utils.getWorkflowRuns(page)
-
       const runIds = runs.filter(utils.shouldBeDeleted).map(run => run.id)
 
       if (runIds.length === 0) {
-        core.info('No more runs to delete')
-        break
+        core.info(`No runs to delete on page ${page}`)
+        continue
       }
 
-      core.info(`Deleting runs ${runIds}`)
+      core.info(`Deleting ${runIds.length} runs on page ${page}`)
 
       try {
         await utils.deleteWorkflowRuns(runIds)
