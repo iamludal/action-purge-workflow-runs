@@ -14,10 +14,11 @@ export const shouldBeDeleted = (run: any) => {
   if (config.ignoreOpenPullRequests && run.pull_requests?.length > 0) {
     core.debug(`Ignoring run ${run.id} because it has open pull requests`)
     return false
-  }
-
-  if (dayjs(run.created_at).isAfter(config.lastKeepDate)) {
+  } else if (dayjs(run.created_at).isAfter(config.lastKeepDate)) {
     core.debug(`Ignoring run ${run.id} because it is newer than ${config.lastKeepDate}`)
+    return false
+  } else if (run.conclusion === null) {
+    core.debug(`Ignoring run ${run.id} because it is still in progress`)
     return false
   }
 
