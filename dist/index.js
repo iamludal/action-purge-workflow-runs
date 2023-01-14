@@ -11564,7 +11564,7 @@ const main = () => __awaiter(void 0, void 0, void 0, function* () {
         const lastPage = Math.floor(totalCount / perPage) + remainderPage;
         for (let page = lastPage; page >= 0; page--) {
             const runs = yield utils.getWorkflowRuns(page);
-            const runIds = runs.filter(run => utils.shouldBeDeleted(run)).map(run => run.id);
+            const runIds = runs.filter(utils.shouldBeDeleted).map(run => run.id);
             if (runIds.length === 0) {
                 core.info('No more runs to delete');
                 break;
@@ -11645,8 +11645,12 @@ const shouldBeDeleted = (run) => {
         core.debug(`Ignoring run ${run.id} because it has open pull requests`);
         return false;
     }
-    if ((0, dayjs_1.default)(run.created_at).isAfter(config_1.default.lastKeepDate)) {
+    else if ((0, dayjs_1.default)(run.created_at).isAfter(config_1.default.lastKeepDate)) {
         core.debug(`Ignoring run ${run.id} because it is newer than ${config_1.default.lastKeepDate}`);
+        return false;
+    }
+    else if (run.conclusion === null) {
+        core.debug(`Ignoring run ${run.id} because it is still in progress`);
         return false;
     }
     return true;
