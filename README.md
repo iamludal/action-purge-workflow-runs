@@ -15,7 +15,7 @@ name: Cleanup Workflow Runs
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 */2 * * *'
+    - cron: '0 0 * * *'
 jobs:
   cleanup:
     runs-on: ubuntu-latest
