@@ -11567,10 +11567,10 @@ const main = () => __awaiter(void 0, void 0, void 0, function* () {
             const runs = yield utils.getWorkflowRuns(page);
             const runIds = runs.filter(utils.shouldBeDeleted).map(run => run.id);
             if (runIds.length === 0) {
-                core.info(`No runs to delete on page ${page}`);
+                core.debug(`No runs to delete on page ${page}`);
                 continue;
             }
-            core.info(`Deleting ${runIds.length} runs on page ${page}`);
+            core.info(`Deleting runs ${runIds}`);
             try {
                 yield utils.deleteWorkflowRuns(runIds);
                 deleted += runIds.length;
