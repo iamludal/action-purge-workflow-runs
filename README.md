@@ -21,7 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Cleanup workflow runs
-        uses: iamludal/action-purge-workflow-runs@main
+        uses: iamludal/action-purge-workflow-runs@v2
         with:
           days-old: 30
           ignore-open-pull-requests: true
