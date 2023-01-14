@@ -11562,21 +11562,24 @@ const main = () => __awaiter(void 0, void 0, void 0, function* () {
         const totalCount = yield utils.getTotalCount();
         const remainderPage = totalCount % perPage !== 0 ? 1 : 0;
         const lastPage = Math.floor(totalCount / perPage) + remainderPage;
+        let deleted = 0;
         for (let page = lastPage; page >= 0; page--) {
             const runs = yield utils.getWorkflowRuns(page);
             const runIds = runs.filter(utils.shouldBeDeleted).map(run => run.id);
             if (runIds.length === 0) {
-                core.info('No more runs to delete');
-                break;
+                core.info(`No runs to delete on page ${page}`);
+                continue;
             }
-            core.info(`Deleting runs ${runIds}`);
+            core.info(`Deleting ${runIds.length} runs on page ${page}`);
             try {
                 yield utils.deleteWorkflowRuns(runIds);
+                deleted += runIds.length;
             }
             catch (e) {
                 core.error(`Failed to delete runs: ${e.message}`);
             }
         }
+        core.info(`Deleted ${deleted} runs`);
     }
     catch (error) {
         core.setFailed(`Action failed with error: ${error}`);
