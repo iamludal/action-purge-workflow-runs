@@ -15,7 +15,7 @@ const main = async (): Promise<void> => {
     for (let page = lastPage; page >= 0; page--) {
       const runs = await utils.getWorkflowRuns(page)
 
-      const runIds = runs.filter(run => utils.shouldBeDeleted(run)).map(run => run.id)
+      const runIds = runs.filter(utils.shouldBeDeleted).map(run => run.id)
 
       if (runIds.length === 0) {
         core.info('No more runs to delete')
