@@ -15,5 +15,10 @@ jobs:
       - name: Lint
         run: yarn lint
 
+      - name: Test
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: yarn test
+
       - name: Build
         run: yarn build
