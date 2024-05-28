@@ -1,40 +1,55 @@
-import * as core from '@actions/core'
-import * as utils from './utils'
-import config from './config'
-
-const { perPage, olderThanDays, lastKeepDate } = config
+import { getInput, info, debug, error, setFailed } from '@actions/core'
+import { context } from '@actions/github'
+import { getTotalCount, shouldBeDeleted, getWorkflowRuns, deleteWorkflowRuns } from './utils'
+import { getConfig } from './config'
 
 const main = async (): Promise<void> => {
-  try {
-    core.info(`Searching for runs older than ${olderThanDays} days (before ${lastKeepDate})`)
+  const config = getConfig({
+    olderThanDays: getInput('older-than-days'),
+    ignoreOpenPullRequests: getInput('ignore-open-pull-requests'),
+    github: context,
+  })
 
-    const totalCount = await utils.getTotalCount()
-    const remainderPage = totalCount % perPage !== 0 ? 1 : 0
-    const lastPage = Math.floor(totalCount / perPage) + remainderPage
+  try {
+    info(
+      `Searching for runs older than ${config.olderThanDays} days (before ${config.lastKeepDate})`,
+    )
+
+    const totalCount = await getTotalCount(config)
+    const remainderPage = totalCount % config.perPage !== 0 ? 1 : 0
+    const lastPage = Math.floor(totalCount / config.perPage) + remainderPage
     let deleted = 0
 
     for (let page = lastPage; page >= 0; page--) {
-      const runs = await utils.getWorkflowRuns(page)
-      const runIds = runs.filter(utils.shouldBeDeleted).map(run => run.id)
+      const runs = await getWorkflowRuns(config, page)
+      const runIds = runs.filter(run => shouldBeDeleted(config, run)).map(run => run.id)
 
       if (runIds.length === 0) {
-        core.debug(`No runs to delete on page ${page}`)
+        debug(`No runs to delete on page ${page}`)
         continue
       }
 
-      core.info(`Deleting runs ${runIds}`)
+      info(`Deleting runs ${runIds}`)
 
       try {
-        await utils.deleteWorkflowRuns(runIds)
+        await deleteWorkflowRuns(config, runIds)
         deleted += runIds.length
-      } catch (e: any) {
-        core.error(`Failed to delete runs: ${e.message}`)
+      } catch (e: unknown) {
+        if (e instanceof Error) {
+          error(`Failed to delete runs: ${e.message}`)
+        } else {
+          error(`Failed to delete runs: ${e}`)
+        }
       }
     }
 
-    core.info(`Deleted ${deleted} runs`)
-  } catch (error: any) {
-    core.setFailed(`Action failed with error: ${error}`)
+    info(`Deleted ${deleted} runs`)
+  } catch (e) {
+    if (e instanceof Error) {
+      setFailed(`Action failed with error: ${e.message}`)
+    } else {
+      setFailed(`Action failed with error: ${e}`)
+    }
   }
 }
 
