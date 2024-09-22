@@ -1,6 +1,6 @@
 {
   "name": "purge-workflow-runs",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "private": false,
   "description": "GitHub Action to purge workflow runs",
   "author": "Ludal",
