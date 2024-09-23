@@ -1,3 +1,6 @@
+/**
+ * @type {import('@jest/types').Config.InitialOptions}
+ */
 module.exports = {
   clearMocks: true,
   moduleFileExtensions: ['js', 'ts'],
@@ -7,5 +10,6 @@ module.exports = {
   transform: {
     '^.+\\.ts$': 'ts-jest'
   },
-  verbose: true
+  verbose: true,
+  collectCoverageFrom: ['src/**/*.ts'],
 }
